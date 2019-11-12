@@ -2,7 +2,7 @@
 
 ## Build
 
-```
+```bash
 # build and strip executable
 CGO_ENABLED=0 go build github.com/ziyan/panto
 objcopy --strip-all panto
