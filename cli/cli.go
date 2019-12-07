@@ -10,6 +10,7 @@ import (
 	"github.com/op/go-logging"
 	"github.com/urfave/cli"
 
+	"github.com/ziyan/panto/server"
 	"github.com/ziyan/panto/utils"
 )
 
@@ -61,8 +62,8 @@ func Run(args []string) {
 		&cli.Command{
 			Name: "server",
 			Action: func(c *cli.Context) error {
-				time.Sleep(60 * time.Second)
-				return nil
+				rwc := utils.NewReadWriteCloser(os.Stdin, os.Stdout)
+				return server.NewServer().Run(rwc)
 			},
 		},
 	}
