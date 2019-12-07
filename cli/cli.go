@@ -11,6 +11,7 @@ import (
 	"github.com/urfave/cli"
 
 	"github.com/ziyan/panto/server"
+	"github.com/ziyan/panto/client"
 	"github.com/ziyan/panto/utils"
 )
 
@@ -63,7 +64,7 @@ func Run(args []string) {
 			Name: "server",
 			Action: func(c *cli.Context) error {
 				rwc := utils.NewReadWriteCloser(os.Stdin, os.Stdout)
-				return server.NewServer().Run(rwc)
+				return server.NewServer(rwc).Run()
 			},
 		},
 	}
@@ -89,14 +90,15 @@ func Run(args []string) {
 		}()
 
 		for _, remote := range c.StringSlice("remote") {
-			cmd, _, err := utils.RunRemoteExecutable(ctx, remote, c.String("remote-executable-path"), "--log-level", c.String("log-level"), "server")
+			cmd, rwc, err := utils.RunRemoteExecutable(ctx, remote, c.String("remote-executable-path"), "--log-level", logging.GetLevel("").String(), "server")
 			if err != nil {
 				return err
 			}
 			cmds = append(cmds, cmd)
+			go client.NewClient(rwc).Run()
 		}
 
-		time.Sleep(2 * time.Second)
+		time.Sleep(6 * time.Second)
 
 		for _, cmd := range cmds {
 			if cmd.Process != nil {

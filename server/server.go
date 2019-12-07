@@ -10,14 +10,17 @@ import (
 var log = logging.MustGetLogger("server")
 
 type Server struct {
+	rwc io.ReadWriteCloser
 }
 
-func NewServer() *Server {
-	return &Server{}
+func NewServer(rwc io.ReadWriteCloser) *Server {
+	return &Server{
+		rwc,
+	}
 }
 
-func (s *Server) Run(rwc io.ReadWriteCloser) error {
-	session, err := yamux.Server(rwc, nil)
+func (s *Server) Run() error {
+	session, err := yamux.Server(s.rwc, nil)
 	if err != nil {
 		return err
 	}
@@ -48,5 +51,6 @@ func (s *Server) Run(rwc io.ReadWriteCloser) error {
 }
 
 func (s *Server) handleStream(stream *yamux.Stream) error {
+	log.Debugf("stream initiated from client")
 	return nil
 }
