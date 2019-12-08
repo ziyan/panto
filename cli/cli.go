@@ -10,8 +10,8 @@ import (
 	"github.com/op/go-logging"
 	"github.com/urfave/cli"
 
-	"github.com/ziyan/panto/server"
 	"github.com/ziyan/panto/client"
+	"github.com/ziyan/panto/server"
 	"github.com/ziyan/panto/utils"
 )
 
@@ -73,12 +73,6 @@ func Run(args []string) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		for _, remote := range c.StringSlice("remote") {
-			if err := utils.DeployExecutable(ctx, remote, c.String("remote-executable-path")); err != nil {
-				return err
-			}
-		}
-
 		var cmds []*exec.Cmd
 		defer func() {
 			cancel()
@@ -89,6 +83,7 @@ func Run(args []string) {
 			}
 		}()
 
+		// TODO: parallelize this
 		for _, remote := range c.StringSlice("remote") {
 			cmd, rwc, err := utils.RunRemoteExecutable(ctx, remote, c.String("remote-executable-path"), "--log-level", logging.GetLevel("").String(), "server")
 			if err != nil {
